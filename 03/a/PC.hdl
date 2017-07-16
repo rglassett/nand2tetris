@@ -16,5 +16,30 @@ CHIP PC {
     OUT out[16];
 
     PARTS:
-    // Put your code here:
+    Not(in=reset, out=isNotReset);
+    And(a=isNotReset, b=load, out=isLoaded);
+
+    Not(in=isLoaded, out=isNotLoaded);
+    And(a=inc, b=isNotLoaded, out=isIncremented);
+
+    Or(a=reset, b=isIncremented, out=isRecalculated);
+
+    Or(a=reset, b=load, out=isResetOrLoaded);
+    Or(a=inc, b=isResetOrLoaded, out=isReassigned);
+
+    Mux16(a=memory, b=in, sel=load, out=calculatorInput);
+
+    ALU(
+      x=calculatorInput,
+      y=false,
+      zx=reset,
+      nx=isIncremented,
+      zy=true,
+      ny=isNotReset,
+      f=isRecalculated,
+      no=isIncremented,
+      out=calculatorOutput
+    );
+
+    Register(in=calculatorOutput, load=isReassigned, out=memory, out=out);
 }
